@@ -468,9 +468,9 @@ ul{ list-style:none; }
 .concept{ background:#e1dcd8; }
 .concept__name{ display:block; margin-top:10px; font-family:var(--serif); font-style:italic; font-size:1rem; color:var(--ink-2); text-align:left; letter-spacing:0; }
 .concept__grid{ display:grid; gap:clamp(28px,4vw,64px); }
-@media (min-width:900px){ .concept__grid{ grid-template-columns:1fr clamp(130px,16vw,200px); align-items:center; } }
-.concept__media{ display:grid; gap:clamp(8px,1.2vw,14px); max-width:200px; margin-inline:auto; }
+@media (min-width:900px){ .concept__grid{ grid-template-columns:1fr clamp(84px,10vw,120px); align-items:center; } }
+.concept__media{ display:grid; gap:clamp(6px,1vw,10px); max-width:min(130px,30vw); margin-inline:auto; }
 @media (min-width:900px){ .concept__media{ margin-inline:0; } }   /* fills its capped column → iso ~half size */
 .concept__media figure{ margin:0; }
 .concept__media img{ display:block; width:100%; height:auto; }
-.concept__plans-row{ display:grid; grid-template-columns:1fr 1fr; gap:clamp(10px,1.4vw,16px); }
+.concept__plans-row{ display:grid; grid-template-columns:1fr 1fr; gap:clamp(5px,0.8vw,9px); }
