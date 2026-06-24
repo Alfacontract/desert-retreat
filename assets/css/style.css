@@ -307,8 +307,8 @@ ul{ list-style:none; }
 .support-text{ font-size:.8rem; letter-spacing:.04em; color:rgba(244,241,234,.5); margin-top:20px; }
 
 /* ---------- LA MATERIA (texture mosaic from moodboard pieces) ---------- */
-.materia{ display:grid; grid-template-columns:repeat(2,1fr); gap:1px; background:var(--line); border:1px solid var(--line); }
-@media (min-width:560px){ .materia{ grid-template-columns:repeat(3,1fr); } }
+.materia{ display:grid; grid-template-columns:repeat(3,1fr); gap:1px; background:var(--line); border:1px solid var(--line); }
+@media (min-width:560px){ .materia{ grid-template-columns:repeat(4,1fr); } }
 @media (min-width:1024px){ .materia{ grid-template-columns:repeat(6,1fr); } }
 .materia figure{ position:relative; aspect-ratio:1; overflow:hidden; background:var(--shell); margin:0; }
 .materia img{ width:100%; height:100%; object-fit:cover; transition:transform .9s var(--e-signature); }
