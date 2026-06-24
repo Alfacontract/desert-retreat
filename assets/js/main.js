@@ -164,7 +164,8 @@
   function initTrackWheel() {
     document.querySelectorAll("[data-scroll-hijack-container]").forEach(function (track) {
       track.addEventListener("wheel", function (e) {
-        if (getComputedStyle(track).overflowX === "visible") return;        // pinned (GSAP) mode → ignore
+        var ox = getComputedStyle(track).overflowX;
+        if (ox !== "auto" && ox !== "scroll") return;                       // only the plain native scroller (no pin, no marquee)
         if (track.scrollWidth <= track.clientWidth) return;
         if (Math.abs(e.deltaY) <= Math.abs(e.deltaX)) return;               // already a horizontal gesture
         var atStart = track.scrollLeft <= 0;
@@ -191,9 +192,10 @@
       var sec = track.closest("[data-scroll-hijack-parent]") || track;
       var raf = null, idle = null;
       var visible = false, interacting = false, cloned = false;
-      var pos = 0;           // sub-pixel scroll accumulator (scrollLeft is integer-rounded)
-      var period = 0;        // one full loop of the originals, gap-exact, rounded to px
+      var pos = 0;           // sub-pixel transform position — the float source of truth
+      var period = 0;        // one full loop of the originals, gap-exact (sub-pixel)
       var last = 0;
+      var marqueeTransform = false;   // true while OUR translate3d owns track.style.transform (vs GSAP's pin)
 
       function native() {
         return getComputedStyle(track).overflowX !== "visible" &&
@@ -246,57 +248,61 @@
 
       // period = first clone's left edge - first original's left edge. offsetLeft is read
       // after flex+gap layout, so it bakes in every card width AND every gap, including the
-      // gap joining the last original -> first clone. Rounded so the seam maps integer
-      // scrollLeft (period) -> 0 with no sub-pixel shimmer.
+      // gap joining the last original -> first clone. Kept as an EXACT sub-pixel float — the
+      // GPU transform renders fractional px, so the seam is pixel-perfect and never shimmers.
       function measure() {
         var firstClone = track.querySelector("[data-clone]");
         period = (firstClone && track.children.length)
-          ? Math.round(firstClone.offsetLeft - track.children[0].offsetLeft)
+          ? (firstClone.offsetLeft - track.children[0].offsetLeft)
           : 0;
       }
 
+      // Drive the loop with a GPU translate3d, NOT scrollLeft. scrollLeft is integer-snapped
+      // per CSS pixel, so at ~0.5px/frame it stair-steps ("tik") and snap can re-fire ("mipare")
+      // — exactly the mobile jank. A composited sub-pixel transform is buttery, like the desktop pin.
       function frame(now) {
         if (!raf) return;
-        if (period <= 0) { pause(); return; }                    // defense: never scroll unbounded
+        if (period <= 0) { pause(); return; }                    // defense: never run unbounded
         if (!last) last = now;
         var dt = (now - last) / 1000;                            // seconds elapsed — frame-rate independent
         last = now;
         if (dt > 0.1) dt = 0.1;                                  // clamp after a tab-switch / long frame
         pos += SPEED * dt;                                       // velocity integration in float space
         while (pos >= period) pos -= period;                     // seamless wrap; keeps the fraction
-        track.scrollLeft = Math.round(pos);                      // integer write; remainder stays in pos
+        track.style.transform = "translate3d(" + (-pos) + "px,0,0)";
+        marqueeTransform = true;
         raf = window.requestAnimationFrame(frame);
       }
 
       function play() {
         if (raf || interacting || !visible || document.hidden || !native() || pinned()) return;
-        if (track.style.transform) track.style.transform = "";   // clear any stale pin transform
-        buildClones();
-        if (period <= 0) return;                                 // not enough content to loop
-        track.classList.add("is-marquee");                       // snap OFF for the whole native session
-        pos = track.scrollLeft;                                  // pick up wherever the user left it
-        if (pos >= period) pos = pos % period;
-        track.scrollLeft = Math.round(pos);                      // keep DOM + accumulator in sync (no period jump-back)
+        if (!cloned && track.scrollWidth <= track.clientWidth + 4) return;            // originals already fit
+        if (!marqueeTransform && track.style.transform) track.style.transform = "";   // clear a stale pin transform (native side)
+        track.classList.add("is-marquee");                       // snap OFF + overflow:hidden BEFORE cloning, so appending
+        buildClones();                                           // clones can't trigger a scroll-snap re-adjust jump at the start
+        if (period <= 0) { track.classList.remove("is-marquee"); return; }
+        if (pos >= period) pos = pos % period;                   // pos is the persistent float position (survives pauses)
         last = 0;
         raf = window.requestAnimationFrame(frame);
       }
 
-      function pause() {                                         // snap stays OFF (is-marquee kept) so a
-        if (raf) { window.cancelAnimationFrame(raf); raf = null; } // paused/manual scroll never snap-jerks
+      function pause() {                                         // freeze in place; is-marquee + transform kept,
+        if (raf) { window.cancelAnimationFrame(raf); raf = null; } // so resume continues smoothly with no jump
       }
 
       // Full reset when leaving native mode (resize up to the desktop pin). Leaves a clean
-      // DOM for the pin: no clones, no transform, snap restored.
+      // DOM for the pin: no clones, no marquee transform, snap + overflow restored.
       function teardown() {
         pause();
         clearTimeout(idle); idle = null;
         interacting = false;
         stripClones();
-        track.classList.remove("is-marquee");                    // restore default snap for non-native layouts
+        track.classList.remove("is-marquee");                    // restore default snap + overflow for non-native layouts
         pos = 0;
-        // NB: do NOT clear track.style.transform here. In pin mode GSAP owns that transform,
-        // and teardown() also runs on every desktop resize (via sync) — wiping it would stomp
-        // the active pin pan. play() clears any stray transform on the native side instead.
+        // Clear ONLY our own marquee transform. At desktop the inline transform belongs to
+        // GSAP's pin (teardown also runs on every desktop resize via sync) — wiping that would
+        // stomp the active pan, so we guard on marqueeTransform.
+        if (marqueeTransform) { track.style.transform = ""; marqueeTransform = false; }
       }
 
       function bump() {                                          // user interaction: pause, resume when idle
