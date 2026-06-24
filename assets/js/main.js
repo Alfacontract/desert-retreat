@@ -4,11 +4,12 @@
    - IntersectionObserver header state (no scroll listener; taste-skill §5.D)
    - GSAP hero reveal timeline (kicker stagger + 1.8s image settle)
    - GSAP parallax [data-parallax]            (>=768px)
-   - GSAP pinned horizontal pan               (>=1024px)
+   - GSAP pinned horizontal pan               (>=560px)
    ================================================================= */
 (function () {
   "use strict";
   var reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  var PIN_QUERY = "(min-width:560px) and (min-height:600px)";
 
   /* 1. SCROLL REVEAL */
   function initReveal() {
@@ -117,7 +118,7 @@
     }
     var gsap = window.gsap;
     gsap.registerPlugin(window.ScrollTrigger);
-    gsap.matchMedia().add("(min-width:1024px) and (min-height:600px)", function () {
+    gsap.matchMedia().add(PIN_QUERY, function () {
       // GUARD: native-mode auto-scroll clones double track.scrollWidth and would double
       // the pan distance / break the pin. Clones only exist after a native -> desktop
       // crossing; this matchMedia ENTER callback fires synchronously on that crossing, so
@@ -198,7 +199,7 @@
       var marqueeTransform = false;   // true while OUR translate3d owns track.style.transform (vs GSAP's pin)
 
       function native() {
-        return getComputedStyle(track).overflowX !== "visible" &&
+        return !window.matchMedia(PIN_QUERY).matches &&
                track.scrollWidth > track.clientWidth + 4;
       }
       // True while GSAP still has the section pinned (a .pin-spacer wraps it). Don't
@@ -278,7 +279,7 @@
         if (raf || interacting || !visible || document.hidden || !native() || pinned()) return;
         if (!cloned && track.scrollWidth <= track.clientWidth + 4) return;            // originals already fit
         if (!marqueeTransform && track.style.transform) track.style.transform = "";   // clear a stale pin transform (native side)
-        track.classList.add("is-marquee");                       // snap OFF + overflow:hidden BEFORE cloning, so appending
+        track.classList.add("is-marquee");                       // snap OFF before cloning, so appending
         buildClones();                                           // clones can't trigger a scroll-snap re-adjust jump at the start
         if (period <= 0) { track.classList.remove("is-marquee"); return; }
         if (pos >= period) pos = pos % period;                   // pos is the persistent float position (survives pauses)

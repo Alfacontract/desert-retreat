@@ -195,18 +195,19 @@ ul{ list-style:none; }
 .spaces__track::-webkit-scrollbar-thumb{ background:var(--bronze); }
 .spaces__track::-webkit-scrollbar-track{ background:rgba(33,28,22,.10); }
 /* Native auto-scroll marquee: a GPU translate3d drives the track, so manual scroll +
-   snap are switched OFF (overflow:hidden) for the whole native session. This is what makes
+   snap are switched OFF while the parent viewport keeps the clipping stable. This is what makes
    the motion buttery on mobile/HiDPI — scrollLeft is integer-snapped and stair-steps; a
    composited transform is sub-pixel and smooth. The class persists across pauses, so a touch
    pauses in place and resumes with no snap-back. (Removed only on teardown / reduced-motion,
    where the track returns to a normal snap scroller.) */
-.spaces__track.is-marquee{ scroll-snap-type:none; overflow:hidden; will-change:transform; }
+.spaces__track.is-marquee{ scroll-snap-type:none; overflow:visible; scrollbar-width:none; will-change:transform; }
+.spaces__track.is-marquee::-webkit-scrollbar{ display:none; }
 .spaces__track.is-marquee .space-card{ scroll-snap-align:none; }
 .space-card[data-clone]{ scroll-snap-align:none; }
 .space-card{ scroll-snap-align:start; flex:0 0 84%; position:relative; }
 @media (min-width:640px){ .space-card{ flex-basis:46%; } }
 .space-card .media{ aspect-ratio:3/4; }
-@media (min-width:1024px) and (min-height:600px){
+@media (min-width:560px) and (min-height:600px){
   /* pinned stage = one viewport tall, vertically centred, captions always visible.
      Gated on min-height:600px to MATCH the GSAP pin matchMedia query exactly — so a
      short/minimised desktop window falls back to the base horizontal-scroll layout
