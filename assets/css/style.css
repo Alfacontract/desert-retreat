@@ -165,8 +165,13 @@ ul{ list-style:none; }
 .hero__media img{ width:100%; height:100%; object-fit:cover; object-position:center 38%; }
 .js .hero__media img{ opacity:0; transform:scale(1.06); }
 .hero__media::after{ content:""; position:absolute; inset:0;
-  background:linear-gradient(180deg, rgba(20,16,11,.46) 0%, rgba(20,16,11,.06) 32%, rgba(20,16,11,.66) 100%); }
-.hero__inner{ position:relative; z-index:2; width:100%; padding-block:clamp(40px,9vh,104px); color:#fff; }
+  background:linear-gradient(180deg,
+    rgba(20,16,11,.46) 0%,
+    rgba(20,16,11,.16) 30%,
+    rgba(20,16,11,.55) 60%,
+    rgba(20,16,11,.86) 100%); }
+.hero__inner{ position:relative; z-index:2; width:100%; padding-block:clamp(40px,9vh,104px); color:#fff;
+  text-shadow:0 1px 26px rgba(20,16,11,.4); }   /* soft halo: lifts text contrast on bright spots without a hard shadow */
 .hero__kicker{ display:flex; flex-wrap:wrap; gap:.36em; margin-bottom:22px; color:rgba(255,255,255,.86); }
 .hero__kicker .word{ display:inline-block; }
 .hero__title{ color:#fff; max-width:15ch; }
