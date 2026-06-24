@@ -151,8 +151,24 @@
     window.addEventListener("load", function () { map.invalidateSize(); });
   }
 
+  /* 7. Native gallery: convert vertical wheel to horizontal scroll (mobile / minimised only) */
+  function initTrackWheel() {
+    document.querySelectorAll("[data-scroll-hijack-container]").forEach(function (track) {
+      track.addEventListener("wheel", function (e) {
+        if (getComputedStyle(track).overflowX === "visible") return;        // pinned (GSAP) mode → ignore
+        if (track.scrollWidth <= track.clientWidth) return;
+        if (Math.abs(e.deltaY) <= Math.abs(e.deltaX)) return;               // already a horizontal gesture
+        var atStart = track.scrollLeft <= 0;
+        var atEnd = track.scrollLeft + track.clientWidth >= track.scrollWidth - 1;
+        if ((e.deltaY < 0 && atStart) || (e.deltaY > 0 && atEnd)) return;   // release to page scroll at the edges
+        track.scrollLeft += e.deltaY;
+        e.preventDefault();
+      }, { passive: false });
+    });
+  }
+
   function boot() {
-    initReveal(); initHeader(); initHero(); initParallax(); initHijack(); initMap();
+    initReveal(); initHeader(); initHero(); initParallax(); initHijack(); initMap(); initTrackWheel();
     if (window.ScrollTrigger) {
       window.addEventListener("load", function () { window.ScrollTrigger.refresh(); });
       var t;
