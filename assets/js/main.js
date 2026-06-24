@@ -4,12 +4,12 @@
    - IntersectionObserver header state (no scroll listener; taste-skill §5.D)
    - GSAP hero reveal timeline (kicker stagger + 1.8s image settle)
    - GSAP parallax [data-parallax]            (>=768px)
-   - GSAP pinned horizontal pan               (>=560px)
+   - GSAP pinned horizontal pan               (tall viewports)
    ================================================================= */
 (function () {
   "use strict";
   var reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-  var PIN_QUERY = "(min-width:560px) and (min-height:600px)";
+  var PIN_QUERY = "(min-height:600px)";
 
   /* 1. SCROLL REVEAL */
   function initReveal() {
@@ -110,6 +110,58 @@
 
   /* 5. PINNED HORIZONTAL PAN — scoped with matchMedia so the transform
         auto-reverts when the viewport drops below desktop (fixes mobile/resize) */
+  function enablePinnedSwipe(parent, track, st) {
+    if (!window.PointerEvent || track.__spacesSwipeReady) return;
+    track.__spacesSwipeReady = true;
+
+    var pointerId = null, startX = 0, startY = 0, startScroll = 0, locked = false;
+    function clamp(n, min, max) { return Math.max(min, Math.min(max, n)); }
+    function active() {
+      return st && st.start !== st.end &&
+        parent.parentElement &&
+        parent.parentElement.classList.contains("pin-spacer");
+    }
+    function endDrag() {
+      pointerId = null;
+      locked = false;
+      parent.classList.remove("is-swipe-panning");
+    }
+
+    track.addEventListener("dragstart", function (e) { e.preventDefault(); });
+    track.addEventListener("pointerdown", function (e) {
+      if (!active() || (e.pointerType === "mouse" && e.button !== 0)) return;
+      pointerId = e.pointerId;
+      startX = e.clientX;
+      startY = e.clientY;
+      startScroll = window.scrollY || window.pageYOffset;
+      locked = false;
+      if (track.setPointerCapture) {
+        try { track.setPointerCapture(pointerId); } catch (err) {}
+      }
+    }, { passive: true });
+
+    track.addEventListener("pointermove", function (e) {
+      if (pointerId !== e.pointerId || !active()) return;
+      var dx = e.clientX - startX;
+      var dy = e.clientY - startY;
+      var ax = Math.abs(dx);
+      var ay = Math.abs(dy);
+      if (!locked) {
+        if (ax < 8 && ay < 8) return;
+        if (ax <= ay * 1.15) return;
+        locked = true;
+        parent.classList.add("is-swipe-panning");
+      }
+      e.preventDefault();
+      window.scrollTo(0, clamp(startScroll - dx, st.start, st.end));
+      if (window.ScrollTrigger) window.ScrollTrigger.update();
+    }, { passive: false });
+
+    ["pointerup", "pointercancel", "lostpointercapture"].forEach(function (ev) {
+      track.addEventListener(ev, endDrag, { passive: true });
+    });
+  }
+
   function initHijack() {
     var parents = document.querySelectorAll("[data-scroll-hijack-parent]");
     if (reduce || !window.gsap || !window.ScrollTrigger) {
@@ -133,13 +185,14 @@
         // resize. A static x/end keeps the old width's pan distance after a resize, which
         // leaves the pinned gallery mis-sized / seemingly unrendered — the resize bug.
         var amount = function () { return Math.max(0, track.scrollWidth - track.clientWidth); };
-        gsap.to(track, {
+        var tween = gsap.to(track, {
           x: function () { return -amount(); }, ease: "none",
           scrollTrigger: {
             trigger: parent, start: "top top", end: function () { return "+=" + amount(); },
             scrub: 0.8, pin: true, pinSpacing: true, anticipatePin: 1, invalidateOnRefresh: true
           }
         });
+        enablePinnedSwipe(parent, track, tween.scrollTrigger);
       });
       // matchMedia auto-reverts these tweens (clears the track transform) below the breakpoint
     });
