@@ -468,8 +468,8 @@ ul{ list-style:none; }
 .concept{ background:#e1dcd8; }
 .concept__name{ display:block; margin-top:10px; font-family:var(--serif); font-style:italic; font-size:1rem; color:var(--ink-2); text-align:left; letter-spacing:0; }
 .concept__grid{ display:grid; gap:clamp(28px,4vw,64px); }
-@media (min-width:900px){ .concept__grid{ grid-template-columns:1fr clamp(260px,32vw,400px); align-items:center; } }
-.concept__media{ display:grid; gap:clamp(14px,2vw,24px); max-width:400px; margin-inline:auto; }
+@media (min-width:900px){ .concept__grid{ grid-template-columns:1fr clamp(130px,16vw,200px); align-items:center; } }
+.concept__media{ display:grid; gap:clamp(8px,1.2vw,14px); max-width:200px; margin-inline:auto; }
 @media (min-width:900px){ .concept__media{ margin-inline:0; } }   /* fills its capped column → iso ~half size */
 .concept__media figure{ margin:0; }
 .concept__media img{ display:block; width:100%; height:auto; }
