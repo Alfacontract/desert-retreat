@@ -313,8 +313,7 @@ ul{ list-style:none; }
 .materia figure{ position:relative; aspect-ratio:1; overflow:hidden; background:var(--shell); margin:0; }
 .materia img{ width:100%; height:100%; object-fit:cover; transition:transform .9s var(--e-signature); }
 .materia figure:hover img{ transform:scale(1.07); }
-.materia figure::after{ content:""; position:absolute; inset:0; background:linear-gradient(0deg,rgba(20,16,11,.5),transparent 58%); }
-.materia figcaption{ position:absolute; left:12px; bottom:11px; z-index:2; font-size:.6rem; letter-spacing:.18em; text-transform:uppercase; color:#fff; }
+/* clean, label-free texture tiles — no caption, no gradient overlay */
 
 /* ---------- MAP (Leaflet) ---------- */
 .split--stretch{ align-items:stretch; }
