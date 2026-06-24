@@ -127,12 +127,15 @@
       parents.forEach(function (parent) {
         var track = parent.querySelector("[data-scroll-hijack-container]");
         if (!track) return;
-        var overflow = track.scrollWidth - track.clientWidth;
-        if (overflow <= 0) return;
+        if (track.scrollWidth - track.clientWidth <= 0) return;
+        // Function-based distance so invalidateOnRefresh RE-MEASURES the pan on every
+        // resize. A static x/end keeps the old width's pan distance after a resize, which
+        // leaves the pinned gallery mis-sized / seemingly unrendered — the resize bug.
+        var amount = function () { return Math.max(0, track.scrollWidth - track.clientWidth); };
         gsap.to(track, {
-          x: -overflow, ease: "none",
+          x: function () { return -amount(); }, ease: "none",
           scrollTrigger: {
-            trigger: parent, start: "top top", end: "+=" + overflow,
+            trigger: parent, start: "top top", end: function () { return "+=" + amount(); },
             scrub: 0.8, pin: true, pinSpacing: true, anticipatePin: 1, invalidateOnRefresh: true
           }
         });
@@ -291,7 +294,9 @@
         stripClones();
         track.classList.remove("is-marquee");                    // restore default snap for non-native layouts
         pos = 0;
-        track.style.transform = "";                              // never strand a leftover pin x
+        // NB: do NOT clear track.style.transform here. In pin mode GSAP owns that transform,
+        // and teardown() also runs on every desktop resize (via sync) — wiping it would stomp
+        // the active pin pan. play() clears any stray transform on the native side instead.
       }
 
       function bump() {                                          // user interaction: pause, resume when idle
