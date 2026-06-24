@@ -1,0 +1,9 @@
+# Source material (not part of the deployed site) — large originals & moodboard
+image content/
+
+# OS / editor junk
+.DS_Store
+Thumbs.db
+*.log
+.vscode/
+.idea/
