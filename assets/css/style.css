@@ -186,11 +186,23 @@ ul{ list-style:none; }
 .spaces__track::-webkit-scrollbar{ height:7px; }
 .spaces__track::-webkit-scrollbar-thumb{ background:var(--bronze); }
 .spaces__track::-webkit-scrollbar-track{ background:rgba(33,28,22,.10); }
+/* Native auto-scroll marquee: snap must be OFF while the rAF loop drives the track,
+   otherwise scroll-snap-type:x mandatory yanks the continuous scroll back (the
+   reported tick / "suti"). The class persists for the whole native session (added on
+   enter, removed only on teardown), so a manual swipe during a pause stays smooth too
+   — re-engaging mandatory snap mid-gesture is what jerks. */
+.spaces__track.is-marquee{ scroll-snap-type:none; scroll-behavior:auto; }
+.spaces__track.is-marquee .space-card{ scroll-snap-align:none; }
+.space-card[data-clone]{ scroll-snap-align:none; }
 .space-card{ scroll-snap-align:start; flex:0 0 84%; position:relative; }
 @media (min-width:640px){ .space-card{ flex-basis:46%; } }
 .space-card .media{ aspect-ratio:3/4; }
-@media (min-width:1024px){
-  /* pinned stage = one viewport tall, vertically centred, captions always visible */
+@media (min-width:1024px) and (min-height:600px){
+  /* pinned stage = one viewport tall, vertically centred, captions always visible.
+     Gated on min-height:600px to MATCH the GSAP pin matchMedia query exactly — so a
+     short/minimised desktop window falls back to the base horizontal-scroll layout
+     (overflow-x:auto + snap) instead of being stranded at overflow:visible with no
+     scroll mechanism. */
   .spaces{ min-height:100vh; padding-block:clamp(40px,5vh,72px); display:flex; flex-direction:column; justify-content:center; }
   .spaces__head{ margin-bottom:clamp(22px,3vh,38px); }
   .spaces__track{ overflow:visible; scroll-snap-type:none; align-items:flex-start; }
