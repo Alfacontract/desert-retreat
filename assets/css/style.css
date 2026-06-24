@@ -384,15 +384,6 @@ ul{ list-style:none; }
 .theme-ink .pillar{ transition:background-color .5s var(--e-signature); }
 .theme-ink .pillar:hover{ background:#2a241c; }
 
-/* marquee divider — slow, serif, editorial */
-.marquee{ overflow:hidden; border-block:1px solid var(--line); background:var(--paper); padding-block:clamp(16px,2vw,26px); }
-.marquee__track{ display:flex; width:max-content; animation:marquee 42s linear infinite; }
-.marquee:hover .marquee__track{ animation-play-state:paused; }
-.marquee__track span{ font-family:var(--serif); font-size:clamp(1.4rem,2.6vw,2.4rem); color:var(--ink); white-space:nowrap; padding:0 .55em; }
-.marquee__track span.dot{ color:var(--bronze); }
-@keyframes marquee{ from{ transform:translateX(0); } to{ transform:translateX(-50%); } }
-@media (prefers-reduced-motion:reduce){ .marquee__track{ animation:none; } }
-
 /* micro-interactions */
 .space-card .media img{ transition:transform .9s var(--e-signature); }
 .space-card:hover .media img{ transform:scale(1.05); }
