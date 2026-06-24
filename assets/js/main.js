@@ -167,8 +167,35 @@
     });
   }
 
+  /* 8. Auto-scroll the gallery rightward in native (mobile / minimised) mode */
+  function initAutoScroll() {
+    if (reduce) return;
+    document.querySelectorAll("[data-scroll-hijack-container]").forEach(function (track) {
+      var sec = track.closest("[data-scroll-hijack-parent]") || track;
+      var timer = null, idle = null, visible = false;
+      function native() { return getComputedStyle(track).overflowX !== "visible" && track.scrollWidth > track.clientWidth + 4; }
+      function advance() {
+        if (!visible || !native()) return;
+        if (track.style.transform) track.style.transform = "";          // clear any leftover pin transform
+        var tl = track.getBoundingClientRect().left, cur = track.scrollLeft, target = 0;
+        for (var i = 0; i < track.children.length; i++) {
+          var p = track.children[i].getBoundingClientRect().left - tl + cur;
+          if (p > cur + 6) { target = p; break; }                       // next card; falls back to 0 = loop
+        }
+        track.scrollTo({ left: target, behavior: "smooth" });
+      }
+      function start() { if (!timer && native()) timer = setInterval(advance, 3000); }
+      function stop() { clearInterval(timer); timer = null; }
+      function bump() { stop(); clearTimeout(idle); idle = setTimeout(start, 5000); }   // pause on interaction, resume when idle
+      new IntersectionObserver(function (es) {
+        es.forEach(function (e) { visible = e.isIntersecting; if (visible) start(); else stop(); });
+      }, { threshold: 0.25 }).observe(sec);
+      ["pointerdown", "touchstart", "wheel"].forEach(function (ev) { track.addEventListener(ev, bump, { passive: true }); });
+    });
+  }
+
   function boot() {
-    initReveal(); initHeader(); initHero(); initParallax(); initHijack(); initMap(); initTrackWheel();
+    initReveal(); initHeader(); initHero(); initParallax(); initHijack(); initMap(); initTrackWheel(); initAutoScroll();
     if (window.ScrollTrigger) {
       window.addEventListener("load", function () { window.ScrollTrigger.refresh(); });
       var t;
