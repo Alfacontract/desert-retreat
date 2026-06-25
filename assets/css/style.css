@@ -503,12 +503,15 @@ ul{ list-style:none; }
    remaps --serif to Montserrat and tunes weights / spacing / line-height (Thin & ExtraLight titles).
    Purely additive — the default look is untouched. */
 html.font-brief{ --serif:"Montserrat", system-ui, -apple-system, "Segoe UI", sans-serif; }
-html.font-brief .display{ font-weight:100; letter-spacing:-.03em; line-height:.92; }
-html.font-brief .h1{ font-weight:200; letter-spacing:-.02em; line-height:1.05; }
-html.font-brief .h2{ font-weight:300; letter-spacing:-.01em; line-height:1.14; }
-html.font-brief .h3{ font-weight:500; letter-spacing:0; }
+/* Hierarchy is driven by SIZE; weights stay close and never invert (a smaller element
+   must not out-weight a bigger one). Big = lighter, small = a touch heavier, gently. */
+html.font-brief .display{ font-weight:200; letter-spacing:-.035em; line-height:.92; }
+html.font-brief .h1{ font-weight:300; letter-spacing:-.025em; line-height:1.04;
+  font-size:clamp(2.35rem,5.1vw,3.95rem); }
+html.font-brief .h2{ font-weight:300; letter-spacing:-.015em; line-height:1.12; }
+html.font-brief .h3{ font-weight:400; letter-spacing:0; }
 html.font-brief .lead{ font-weight:300; letter-spacing:0; }
-html.font-brief .kicker{ font-style:normal; font-weight:400; letter-spacing:.03em; }
+html.font-brief .kicker{ font-style:normal; font-weight:500; letter-spacing:.18em; text-transform:uppercase; font-size:.72rem; }
 html.font-brief .serif-i{ font-style:normal; }
 html.font-brief .concept__name{ font-style:normal; font-weight:500; }
 html.font-brief .price-big, html.font-brief .price-figure b, html.font-brief .yield b,
