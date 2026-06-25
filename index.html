@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
   <meta name="theme-color" content="#F4F1EA" />
-  <script>document.documentElement.className = document.documentElement.className.replace('no-js','js');</script>
+  <script>document.documentElement.className = document.documentElement.className.replace('no-js','js'); try{ if(localStorage.getItem('dr-font')==='brief') document.documentElement.classList.add('font-brief'); }catch(e){}</script>
 
   <title>Desert Retreat — Ville private a Sal Rei, Boa Vista | MGM Cape Verde</title>
   <meta name="description" content="Desert Retreat: otto ville private a Sal Rei, Boa Vista. Tre camere, piscina esclusiva e terrazza panoramica, immerse nel paesaggio di Capo Verde. Da €275.000, IVA esclusa. Gestione MGM Cape Verde." />
@@ -21,11 +21,11 @@
 
   <link rel="preload" as="font" type="font/woff2" href="assets/fonts/cormorantgaramond-400-normal-latin.woff2" crossorigin />
   <link rel="preload" as="font" type="font/woff2" href="assets/fonts/montserrat-400-normal-latin.woff2" crossorigin />
-  <link rel="stylesheet" href="assets/css/fonts.css" />
+  <link rel="stylesheet" href="assets/css/fonts.css?v=2" />
   <link rel="preload" as="image" href="assets/img/hero-1200.webp"
         imagesrcset="assets/img/hero-1200.webp 1200w, assets/img/hero-2400.webp 2400w" imagesizes="100vw" />
   <link rel="stylesheet" href="assets/vendor/leaflet/leaflet.css" />
-  <link rel="stylesheet" href="assets/css/style.css?v=22" />
+  <link rel="stylesheet" href="assets/css/style.css?v=23" />
 
   <script type="application/ld+json">
   {
@@ -271,7 +271,7 @@
       <div class="container">
         <div class="stack" style="margin-bottom:clamp(36px,5vw,60px)">
           <p class="kicker" data-animate data-animate-text>Prezzi e configurazioni</p>
-          <h2 class="h1 measure" data-animate data-animate-text>Una base chiara. Tre modi per completare la tua villa</h2>
+          <h2 class="h1 measure" data-animate data-animate-text>Una base, tre modi per completarla</h2>
           <p class="body measure" data-animate data-animate-text>
             Ogni villa &egrave; proposta in configurazione base, consegnata chiavi in mano e
             completamente rifinita. L&rsquo;arredamento non &egrave; incluso nel prezzo base, ma pu&ograve;
@@ -490,5 +490,25 @@
   <script defer src="assets/js/vendor/ScrollTrigger.min.js"></script>
   <script defer src="assets/vendor/leaflet/leaflet.js"></script>
   <script defer src="assets/js/main.js?v=10"></script>
+
+  <!-- ===== FONT TOGGLE — compara la tipografia attuale con quella del brief MGM ===== -->
+  <div class="fonttoggle" role="group" aria-label="Tipografia">
+    <span class="fonttoggle__label">Typeface</span>
+    <button type="button" class="fonttoggle__opt is-on" data-font="editorial">Editoriale</button>
+    <button type="button" class="fonttoggle__opt" data-font="brief">Brief</button>
+  </div>
+  <script>
+  (function () {
+    var html = document.documentElement, opts = document.querySelectorAll(".fonttoggle__opt");
+    function set(mode) {
+      html.classList.toggle("font-brief", mode === "brief");
+      try { localStorage.setItem("dr-font", mode); } catch (e) {}
+      for (var i = 0; i < opts.length; i++) opts[i].classList.toggle("is-on", opts[i].getAttribute("data-font") === mode);
+    }
+    for (var i = 0; i < opts.length; i++) opts[i].addEventListener("click", (function (b) { return function () { set(b.getAttribute("data-font")); }; })(opts[i]));
+    var saved; try { saved = localStorage.getItem("dr-font"); } catch (e) {}
+    set(saved === "brief" ? "brief" : "editorial");
+  })();
+  </script>
 </body>
 </html>

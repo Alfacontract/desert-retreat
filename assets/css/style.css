@@ -497,3 +497,34 @@ ul{ list-style:none; }
 .concept__media figure{ margin:0; }
 .concept__media img{ display:block; width:100%; height:auto; }
 .concept__plans-row{ display:grid; grid-template-columns:1fr 1fr; gap:clamp(12px,1.6vw,20px); }
+
+/* ===================== FONT TOGGLE — "Brief" typography (all Montserrat, per MGM brief) =====================
+   Default site keeps Cormorant Garamond for display. The bottom toggle adds html.font-brief, which
+   remaps --serif to Montserrat and tunes weights / spacing / line-height (Thin & ExtraLight titles).
+   Purely additive — the default look is untouched. */
+html.font-brief{ --serif:"Montserrat", system-ui, -apple-system, "Segoe UI", sans-serif; }
+html.font-brief .display{ font-weight:100; letter-spacing:-.03em; line-height:.92; }
+html.font-brief .h1{ font-weight:200; letter-spacing:-.02em; line-height:1.05; }
+html.font-brief .h2{ font-weight:300; letter-spacing:-.01em; line-height:1.14; }
+html.font-brief .h3{ font-weight:500; letter-spacing:0; }
+html.font-brief .lead{ font-weight:300; letter-spacing:0; }
+html.font-brief .kicker{ font-style:normal; font-weight:400; letter-spacing:.03em; }
+html.font-brief .serif-i{ font-style:normal; }
+html.font-brief .concept__name{ font-style:normal; font-weight:500; }
+html.font-brief .price-big, html.font-brief .price-figure b, html.font-brief .yield b,
+html.font-brief .hero__meta .stat b, html.font-brief .step__n, html.font-brief .pillar__no{ font-weight:500; }
+
+/* the toggle control (always Montserrat, fixed bottom-right) */
+.fonttoggle{ position:fixed; right:14px; bottom:14px; z-index:300; display:flex; align-items:center; gap:4px;
+  background:rgba(33,28,22,.85); -webkit-backdrop-filter:blur(8px); backdrop-filter:blur(8px);
+  padding:6px; font-family:"Montserrat",system-ui,sans-serif; font-size:.58rem; letter-spacing:.14em; text-transform:uppercase; }
+.fonttoggle__label{ color:rgba(244,241,234,.5); padding:0 6px; }
+.fonttoggle__opt{ color:rgba(244,241,234,.62); padding:6px 11px; cursor:pointer; transition:background-color .3s var(--e-soft), color .3s var(--e-soft); }
+.fonttoggle__opt.is-on{ color:var(--ink); background:var(--sand); }
+@media (max-width:560px){ .fonttoggle__label{ display:none; } .fonttoggle{ right:10px; bottom:10px; } }
+
+/* ===================== La materia + Gli spazi heads centred (break the left-aligned monotony) ===================== */
+#materia .grid.split{ grid-template-columns:1fr; justify-items:center; text-align:center; }
+#materia .grid.split .body{ margin-inline:auto; }
+.spaces__head{ flex-direction:column; align-items:center; text-align:center; }
+.spaces__head .body{ margin-inline:auto; }
