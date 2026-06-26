@@ -212,7 +212,7 @@ ul{ list-style:none; }
 .space-card{ scroll-snap-align:start; flex:0 0 84%; position:relative; }
 @media (min-width:640px){ .space-card{ flex-basis:46%; } }
 .space-card .media{ aspect-ratio:3/4; }
-.space-card img{ -webkit-user-drag:none; user-select:none; }
+.space-card img{ -webkit-user-drag:none; -webkit-touch-callout:none; user-select:none; }
 @media (min-height:600px){
   /* pinned stage = one viewport tall, vertically centred, captions always visible.
      Gated on min-height:600px to MATCH the GSAP pin matchMedia query exactly — so a
@@ -221,8 +221,8 @@ ul{ list-style:none; }
      scroll mechanism. */
   .spaces{ min-height:100vh; padding-block:clamp(40px,5vh,72px); display:flex; flex-direction:column; justify-content:center; }
   .spaces__head{ margin-bottom:clamp(22px,3vh,38px); }
-  .spaces__track{ overflow:visible; scroll-snap-type:none; align-items:flex-start; touch-action:pan-y; }
-  .spaces.is-swipe-panning{ cursor:grabbing; }
+  .spaces__track{ overflow:visible; scroll-snap-type:none; align-items:flex-start; touch-action:pan-y; cursor:grab; will-change:transform; }
+  .spaces.is-swipe-panning .spaces__track{ cursor:grabbing; }
   .space-card{ flex-basis:clamp(300px,30vw,440px); }
   .space-card .media{ aspect-ratio:auto; height:min(52vh,540px); }
   /* fallback when the JS pin is not active (reduced motion / short viewport) */
