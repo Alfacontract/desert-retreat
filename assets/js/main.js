@@ -10,52 +10,6 @@
   "use strict";
   var reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
   var PIN_QUERY = "(min-height:600px)";
-  var lastPinState = null;
-
-  function clamp(n, min, max) { return Math.max(min, Math.min(max, n)); }
-
-  function rememberPinProgress(parent, progress) {
-    lastPinState = { parent: parent, progress: clamp(progress, 0, 1), time: Date.now() };
-  }
-
-  function transformProgress(parent) {
-    var track = parent && parent.querySelector("[data-scroll-hijack-container]");
-    if (!track) return null;
-    var matrix = window.getComputedStyle(track).transform;
-    if (!matrix || matrix === "none") return null;
-    var match = matrix.match(/matrix\(([^)]+)\)/);
-    if (!match) return null;
-    var parts = match[1].split(",");
-    var x = parseFloat(parts[4]) || 0;
-    var amount = track.scrollWidth - track.clientWidth;
-    if (amount <= 1 || Math.abs(x) < 0.5) return null;
-    return { parent: parent, progress: clamp(-x / amount, 0, 1) };
-  }
-
-  function capturePinProgress() {
-    var y = window.scrollY || window.pageYOffset || 0;
-    var parents = document.querySelectorAll("[data-scroll-hijack-parent]");
-    for (var i = 0; i < parents.length; i++) {
-      var st = parents[i].__spacesScrollTrigger;
-      if (!st || st.end <= st.start) continue;
-      var fromTransform = transformProgress(parents[i]);
-      if (fromTransform) return fromTransform;
-      if (y >= st.start - 1 && y <= st.end + 1) {
-        return { parent: parents[i], progress: clamp((y - st.start) / (st.end - st.start), 0, 1) };
-      }
-    }
-    if (lastPinState && Date.now() - lastPinState.time < 1400) return lastPinState;
-    return null;
-  }
-
-  function restorePinProgress(state) {
-    if (!state || !window.matchMedia(PIN_QUERY).matches) return;
-    var st = state.parent && state.parent.__spacesScrollTrigger;
-    if (!st || st.end <= st.start) return;
-    window.scrollTo(0, st.start + state.progress * (st.end - st.start));
-    rememberPinProgress(state.parent, state.progress);
-    if (window.ScrollTrigger) window.ScrollTrigger.update();
-  }
 
   /* 1. SCROLL REVEAL */
   function initReveal() {
@@ -157,15 +111,12 @@
   /* 5. PINNED HORIZONTAL PAN — scoped with matchMedia so the transform
         auto-reverts when the viewport drops below desktop (fixes mobile/resize) */
   function enablePinnedSwipe(parent, track, st) {
-    parent.__spacesScrollTrigger = st;
-    track.__spacesScrollTrigger = st;
     if (!window.PointerEvent || track.__spacesSwipeReady) return;
     track.__spacesSwipeReady = true;
 
     var pointerId = null, startX = 0, startY = 0, startScroll = 0, locked = false;
-    function currentTrigger() { return track.__spacesScrollTrigger; }
+    function clamp(n, min, max) { return Math.max(min, Math.min(max, n)); }
     function active() {
-      var st = currentTrigger();
       return st && st.start !== st.end &&
         parent.parentElement &&
         parent.parentElement.classList.contains("pin-spacer");
@@ -191,7 +142,6 @@
 
     track.addEventListener("pointermove", function (e) {
       if (pointerId !== e.pointerId || !active()) return;
-      var st = currentTrigger();
       var dx = e.clientX - startX;
       var dy = e.clientY - startY;
       var ax = Math.abs(dx);
@@ -239,26 +189,7 @@
           x: function () { return -amount(); }, ease: "none",
           scrollTrigger: {
             trigger: parent, start: "top top", end: function () { return "+=" + amount(); },
-            scrub: 0.65, pin: true, pinSpacing: true, anticipatePin: 1, invalidateOnRefresh: true,
-            onUpdate: function (self) {
-              if (self.isActive) rememberPinProgress(parent, self.progress);
-            },
-            onRefreshInit: function (self) {
-              if (self.isActive) {
-                parent.__spacesPendingProgress = self.progress;
-                rememberPinProgress(parent, self.progress);
-              }
-            },
-            onRefresh: function (self) {
-              parent.__spacesScrollTrigger = self;
-              track.__spacesScrollTrigger = self;
-              if (typeof parent.__spacesPendingProgress !== "number") return;
-              var progress = parent.__spacesPendingProgress;
-              parent.__spacesPendingProgress = null;
-              window.requestAnimationFrame(function () {
-                restorePinProgress({ parent: parent, progress: progress });
-              });
-            }
+            scrub: 0.8, pin: true, pinSpacing: true, anticipatePin: 1, invalidateOnRefresh: true
           }
         });
         enablePinnedSwipe(parent, track, tween.scrollTrigger);
@@ -481,20 +412,11 @@
     initReveal(); initHeader(); initHero(); initParallax(); initHijack(); initMap(); initTrackWheel(); initAutoScroll();
     if (window.ScrollTrigger) {
       window.addEventListener("load", function () { window.ScrollTrigger.refresh(); });
-      var t, restoreState = null;
-      function scheduleRefresh(delay) {
-        restoreState = capturePinProgress() || restoreState;
+      var t;
+      window.addEventListener("resize", function () {
         clearTimeout(t);
-        t = setTimeout(function () {
-          var state = restoreState;
-          restoreState = null;
-          window.ScrollTrigger.refresh();
-          window.requestAnimationFrame(function () { restorePinProgress(state); });
-          setTimeout(function () { restorePinProgress(state); }, 90);
-        }, delay);
-      }
-      window.addEventListener("resize", function () { scheduleRefresh(180); });
-      window.addEventListener("orientationchange", function () { scheduleRefresh(450); });
+        t = setTimeout(function () { window.ScrollTrigger.refresh(); }, 250);
+      });
     }
   }
   if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", boot);
