@@ -24,7 +24,9 @@
         e.target.classList.add("visible");
         io.unobserve(e.target);
       });
-    }, { rootMargin: "0px 0px -8% 0px", threshold: 0.1 });
+      // Pre-reveal (+12% below the fold, threshold 0) so a fast scroll never lands
+      // on a fully blank section that fades in late — the "empty flash" scroll bug.
+    }, { rootMargin: "0px 0px 12% 0px", threshold: 0 });
     els.forEach(function (el) { io.observe(el); });
 
     // Horizontal-pan cards can sit off-screen to the right, so reveal every
@@ -125,6 +127,7 @@
       pointerId = null;
       locked = false;
       parent.classList.remove("is-swipe-panning");
+      document.documentElement.style.scrollBehavior = "";
     }
 
     track.addEventListener("dragstart", function (e) { e.preventDefault(); });
@@ -151,6 +154,9 @@
         if (ax <= ay * 1.15) return;
         locked = true;
         parent.classList.add("is-swipe-panning");
+        // html{scroll-behavior:smooth} would turn EVERY per-move scrollTo into an
+        // animated glide (rubber-band lag while swiping) — force instant during a drag.
+        document.documentElement.style.scrollBehavior = "auto";
       }
       e.preventDefault();
       window.scrollTo(0, clamp(startScroll - dx, st.start, st.end));
@@ -411,6 +417,9 @@
   function boot() {
     initReveal(); initHeader(); initHero(); initParallax(); initHijack(); initMap(); initTrackWheel(); initAutoScroll();
     if (window.ScrollTrigger) {
+      // Mobile browsers fire resize when the URL bar collapses/expands while scrolling;
+      // the default refresh re-measures the pin mid-scroll and makes the gallery JUMP.
+      window.ScrollTrigger.config({ ignoreMobileResize: true });
       window.addEventListener("load", function () { window.ScrollTrigger.refresh(); });
       var t;
       window.addEventListener("resize", function () {

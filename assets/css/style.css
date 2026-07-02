@@ -219,7 +219,7 @@ ul{ list-style:none; }
      short/minimised desktop window falls back to the base horizontal-scroll layout
      (overflow-x:auto + snap) instead of being stranded at overflow:visible with no
      scroll mechanism. */
-  .spaces{ min-height:100vh; padding-block:clamp(40px,5vh,72px); display:flex; flex-direction:column; justify-content:center; }
+  .spaces{ min-height:100vh; min-height:100svh; padding-block:clamp(40px,5vh,72px); display:flex; flex-direction:column; justify-content:center; }
   .spaces__head{ margin-bottom:clamp(22px,3vh,38px); }
   .spaces__track{ overflow:visible; scroll-snap-type:none; align-items:flex-start; touch-action:pan-y; }
   .spaces.is-swipe-panning{ cursor:grabbing; }
@@ -498,10 +498,10 @@ ul{ list-style:none; }
 .concept__media img{ display:block; width:100%; height:auto; }
 .concept__plans-row{ display:grid; grid-template-columns:1fr 1fr; gap:clamp(12px,1.6vw,20px); }
 
-/* ===================== FONT TOGGLE — "Brief" typography (all Montserrat, per MGM brief) =====================
-   Default site keeps Cormorant Garamond for display. The bottom toggle adds html.font-brief, which
-   remaps --serif to Montserrat and tunes weights / spacing / line-height (Thin & ExtraLight titles).
-   Purely additive — the default look is untouched. */
+/* ===================== "Brief" typography (all Montserrat, per MGM brief) — THE site typeface =====================
+   html.font-brief is added unconditionally by the head script (the Editoriale/Cormorant
+   variant and its toggle were retired): --serif remaps to Montserrat and weights /
+   spacing / line-height are tuned for Thin & ExtraLight titles. */
 html.font-brief{ --serif:"Montserrat", system-ui, -apple-system, "Segoe UI", sans-serif; }
 /* Hierarchy is driven by SIZE; weights stay close and never invert (a smaller element
    must not out-weight a bigger one). Big = lighter, small = a touch heavier, gently. */
@@ -516,15 +516,6 @@ html.font-brief .serif-i{ font-style:normal; }
 html.font-brief .concept__name{ font-style:normal; font-weight:500; }
 html.font-brief .price-big, html.font-brief .price-figure b, html.font-brief .yield b,
 html.font-brief .hero__meta .stat b, html.font-brief .step__n, html.font-brief .pillar__no{ font-weight:500; }
-
-/* the toggle control (always Montserrat, fixed bottom-right) */
-.fonttoggle{ position:fixed; right:14px; bottom:14px; z-index:300; display:flex; align-items:center; gap:4px;
-  background:rgba(33,28,22,.85); -webkit-backdrop-filter:blur(8px); backdrop-filter:blur(8px);
-  padding:6px; font-family:"Montserrat",system-ui,sans-serif; font-size:.58rem; letter-spacing:.14em; text-transform:uppercase; }
-.fonttoggle__label{ color:rgba(244,241,234,.5); padding:0 6px; }
-.fonttoggle__opt{ color:rgba(244,241,234,.62); padding:6px 11px; cursor:pointer; transition:background-color .3s var(--e-soft), color .3s var(--e-soft); }
-.fonttoggle__opt.is-on{ color:var(--ink); background:var(--sand); }
-@media (max-width:560px){ .fonttoggle__label{ display:none; } .fonttoggle{ right:10px; bottom:10px; } }
 
 /* ===================== La materia + Gli spazi heads centred (break the left-aligned monotony) ===================== */
 #materia .grid.split{ grid-template-columns:1fr; justify-items:center; text-align:center; }
