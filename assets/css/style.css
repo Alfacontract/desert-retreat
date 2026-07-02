@@ -518,7 +518,18 @@ html.font-brief .price-big, html.font-brief .price-figure b, html.font-brief .yi
 html.font-brief .hero__meta .stat b, html.font-brief .step__n, html.font-brief .pillar__no{ font-weight:500; }
 
 /* ===================== La materia + Gli spazi heads centred (break the left-aligned monotony) ===================== */
-#materia .grid.split{ grid-template-columns:1fr; justify-items:center; text-align:center; }
+#materia .grid.split{ grid-template-columns:1fr; justify-items:center; text-align:center;
+  gap:clamp(18px,2.5vw,32px); }   /* tightened: the stacked head lost the 2-col context, the full split gap read as a hole */
 #materia .grid.split .body{ margin-inline:auto; }
 .spaces__head{ flex-direction:column; align-items:center; text-align:center; }
 .spaces__head .body{ margin-inline:auto; }
+
+/* ===================== Elite polish pass (rev.01 QA) ===================== */
+/* Balanced rag on every heading — no more one-word last lines / lopsided title wraps. */
+.display,.h1,.h2,.h3,.slogan blockquote{ text-wrap:balance; }
+/* Slogan: the rev.01 quote is longer — widen the measure so it breaks as two even lines. */
+.slogan blockquote{ max-width:26ch; }
+/* Map: keep the place badge clear of Leaflet's top-left zoom control. */
+.map-badge{ left:auto; right:16px; }
+/* Processo: top-align the intro with step 1 (vertical centering left a dead hole above the title). */
+#processo.section .split{ align-items:start; }
