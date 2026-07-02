@@ -527,6 +527,24 @@ html.font-brief .hero__meta .stat b, html.font-brief .step__n, html.font-brief .
 /* ===================== Elite polish pass (rev.01 QA) ===================== */
 /* Balanced rag on every heading — no more one-word last lines / lopsided title wraps. */
 .display,.h1,.h2,.h3,.slogan blockquote{ text-wrap:balance; }
+
+/* Stand-firsts under the centred heads (La materia + Gli spazi): on desktop the 42ch
+   measure chopped them into 7-8 stubby lines — open them up into a wide, balanced
+   2-3 line lead. Mobile keeps the narrow flowing column (measure via container). */
+#materia .grid.split .body,
+.spaces__head .body{ text-wrap:balance; }
+@media (min-width:900px){
+  #materia .grid.split .body,
+  .spaces__head .body{ max-width:124ch; font-size:1.0625rem; line-height:1.7; }
+}
+
+/* Pinned gallery: keep every card CAPTION on screen while the pan scrolls. On shorter
+   desktops 52vh media + the head pushed captions below the fold — only sizing, the
+   pin/marquee mechanics are untouched (pan distance derives from widths, not heights). */
+@media (min-height:600px){
+  .space-card .media{ height:min(46vh,540px); }
+  .spaces__head{ margin-bottom:clamp(18px,2.5vh,32px); }
+}
 /* Slogan: the rev.01 quote is longer — widen the measure so it breaks as two even lines. */
 .slogan blockquote{ max-width:26ch; }
 /* Map: keep the place badge clear of Leaflet's top-left zoom control. */
